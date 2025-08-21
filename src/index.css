@@ -1,0 +1,58 @@
+@import "cropperjs/dist/cropper.min.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 0 0% 7%;
+		--foreground: 0 0% 98%;
+		--card: 0 0% 10%;
+		--card-foreground: 0 0% 98%;
+		--popover: 0 0% 10%;
+		--popover-foreground: 0 0% 98%;
+		--primary: 48 100% 50%; /* Flash Laughs #FDD100 vibe */
+		--primary-foreground: 0 0% 10%;
+		--secondary: 0 0% 20%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 0 0% 20%;
+		--muted-foreground: 0 0% 70%;
+		--accent: 48 100% 50%;
+		--accent-foreground: 0 0% 10%;
+		--destructive: 0 84% 60%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 0 0% 20%;
+		--input: 0 0% 20%;
+		--ring: 48 100% 50%;
+		--radius: 0.75rem;
+	}
+	.dark {
+		--background: 0 0% 0%;
+		--foreground: 0 0% 98%;
+		--card: 0 0% 7%;
+		--card-foreground: 0 0% 98%;
+		--popover: 0 0% 7%;
+		--popover-foreground: 0 0% 98%;
+		--primary: 48 100% 50%;
+		--primary-foreground: 0 0% 10%;
+		--secondary: 0 0% 14%;
+		--secondary-foreground: 0 0% 98%;
+		--muted: 0 0% 14%;
+		--muted-foreground: 0 0% 70%;
+		--accent: 48 100% 50%;
+		--accent-foreground: 0 0% 10%;
+		--destructive: 0 62% 30%;
+		--destructive-foreground: 0 0% 98%;
+		--border: 0 0% 18%;
+		--input: 0 0% 18%;
+		--ring: 48 100% 50%;
+		--radius: 0.75rem;
+	}
+
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}

@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/removebg.ts": {
+      "runtime": "edge"
+    }
+  }
+}
