@@ -229,12 +229,12 @@ const CANVAS_H = 1920;
 const EXPORT_PIXEL_RATIO = 2; // exports 2160x3840
 
 const defaultSlots = [
-	{ key: "Headliner", name: "", x: 97, y: 536, size: 212 },
-	{ key: "Feature", name: "", x: 345, y: 530, size: 194 },
-	{ key: "Flop", name: "", x: 571, y: 531, size: 194 },
-	{ key: "Opener", name: "", x: 796, y: 531, size: 194 },
-	{ key: "Host", name: "", x: 121, y: 915, size: 165 },
-].map((s) => s);
+	{ id: "headliner", label: "Headliner", name: "", x: 97, y: 536, size: 212 },
+	{ id: "feature", label: "Feature", name: "", x: 345, y: 530, size: 194 },
+	{ id: "flop", label: "Flop", name: "", x: 571, y: 531, size: 194 },
+	{ id: "opener", label: "Opener", name: "", x: 796, y: 531, size: 194 },
+	{ id: "host", label: "Host", name: "", x: 121, y: 915, size: 165 },
+];
 
 export default function PosterMaker() {
 	const [bgDataUrl, setBgDataUrl] = useState(defaultBg);
@@ -351,15 +351,15 @@ export default function PosterMaker() {
 
 				<div className='mt-4 space-y-6'>
 					{slots.map((s, i) => (
-						<div key={`${s.key}-${i}`} className='border border-neutral-800 rounded-2xl p-3'>
+						<div key={s.id} className='border border-neutral-800 rounded-2xl p-3'>
 							<div className='grid grid-cols-1 gap-2'>
 								<div className='text-md' style={{ color: "#FDD100" }}>
-									{s.key ? s.key.toUpperCase() : ""}
+									{s.label ? s.label.toUpperCase() : ""}
 								</div>
 								{/* Name first, required before image */}
 								<div className='flex items-center gap-2'>
 									<span className='text-sm text-gray-400 w-28'>Name</span>
-									<Input value={s.name} onChange={(e) => setNameForSlot(i, e.target.value)} placeholder={`${s.key} Name`} />
+									<Input name={`${s.id}-name`} value={s.name} onChange={(e) => setNameForSlot(i, e.target.value)} placeholder={`${s.label} Name`} />
 								</div>
 								<FilePick label='Headshot' onPick={(f) => startCropForSlot(i, f)} disabled={!s.name?.trim()} />
 								{!s.name?.trim() && <div className='text-xs text-red-300'>Enter the comic’s name before choosing an image.</div>}
@@ -436,14 +436,14 @@ export default function PosterMaker() {
 
 									{/* Comic slots */}
 									{slots.map((s, i) => (
-										<Group key={i} x={s.x} y={s.y}>
+										<Group key={s.id} x={s.x} y={s.y}>
 											{/* Image clip square */}
 											<Group clip={{ x: 0, y: 0, width: s.size, height: s.size }}>
 												<Rect width={s.size} height={s.size} fill='#fdfbcc' />
 												<CroppedImage src={s.img} x={0} y={0} width={s.size} height={s.size} />
 											</Group>
 											{/* Name (auto split on \n) */}
-											<Text text={s.name ? s.name.toUpperCase() : ""} y={s.size + 12} width={s.size} align='center' fontSize={s.key === "headliner" ? 32 : 28} fill='#ffffff' lineHeight={1.05} />
+											<Text text={s.name ? s.name.toUpperCase() : ""} y={s.size + 12} width={s.size} align='center' fontSize={s.id === "headliner" ? 32 : 28} fill='#ffffff' lineHeight={1.05} />
 										</Group>
 									))}
 								</Layer>
