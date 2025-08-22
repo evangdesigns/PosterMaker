@@ -1,3 +1,66 @@
+// ControlsPanel component for reuse (desktop and mobile) — defined at top level to avoid remounting on every keystroke
+function ControlsPanel({ setBgDataUrl, dateText, setDateText, slots, setNameForSlot, startCropForSlot, downloadDataUrl, sanitizeFilename, exportJPG, setCoordForSlot }) {
+	return (
+		<div onMouseDown={stop} onFocus={stop} onKeyDown={stop}>
+			<h1 className='text-2xl font-bold mb-2' style={{ color: "#FDD100" }}>
+				Flash Laughs – Poster Maker
+			</h1>
+
+			<div className='space-y-3'>
+				<FilePick label='Background' onPick={async (f) => setBgDataUrl(await readFileAsDataURL(f))} />
+				<div className='flex items-center gap-2'>
+					<span className='text-sm text-gray-400 w-28'>Show Date</span>
+					<Input type='date' value={dateText} onChange={(e) => setDateText(e.target.value)} />
+				</div>
+			</div>
+
+			<div className='mt-4 space-y-6'>
+				{slots.map((s, i) => (
+					<div key={s.id} className='border border-neutral-800 rounded-2xl p-3'>
+						<div className='grid grid-cols-1 gap-2'>
+							<div className='text-md' style={{ color: "#FDD100" }}>
+								{s.label ? s.label.toUpperCase() : ""}
+							</div>
+							{/* Name first, required before image */}
+							<div className='flex items-center gap-2'>
+								<span className='text-sm text-gray-400 w-28'>Name</span>
+								<Input name={`${s.id}-name`} value={s.name} onChange={(e) => setNameForSlot(i, e.target.value)} placeholder={`${s.label} Name`} />
+							</div>
+							<FilePick label='Headshot' onPick={(f) => startCropForSlot(i, f)} disabled={!s.name?.trim()} />
+							{!s.name?.trim() && <div className='text-xs text-red-300'>Enter the comic’s name before choosing an image.</div>}
+							{s.img && (
+								<div className='flex justify-end'>
+									<button
+										onMouseDown={stop}
+										onFocus={stop}
+										onKeyDown={stop}
+										className='px-3 py-1 rounded-lg bg-yellow-400 text-black text-sm font-semibold hover:bg-yellow-300'
+										onClick={() => downloadDataUrl(s.img, `${sanitizeFilename(s.name)}.png`)}>
+										Download Cutout PNG
+									</button>
+								</div>
+							)}
+							<details className='text-sm text-gray-400'>
+								<summary>Advanced position</summary>
+								<div className='grid grid-cols-3 gap-2 mt-2'>
+									<Input type='number' value={s.x} onChange={(e) => setCoordForSlot(i, "x", parseInt(e.target.value || 0, 10))} placeholder='x' />
+									<Input type='number' value={s.y} onChange={(e) => setCoordForSlot(i, "y", parseInt(e.target.value || 0, 10))} placeholder='y' />
+									<Input type='number' value={s.size} onChange={(e) => setCoordForSlot(i, "size", parseInt(e.target.value || 0, 10))} placeholder='size' />
+								</div>
+							</details>
+						</div>
+					</div>
+				))}
+			</div>
+
+			<div className='flex gap-3 pt-4'>
+				<Button onMouseDown={stop} onFocus={stop} onKeyDown={stop} onClick={exportJPG} className='bg-yellow-400 text-black hover:bg-yellow-300 font-semibold rounded-2xl px-4'>
+					Export JPG
+				</Button>
+			</div>
+		</div>
+	);
+}
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Stage, Layer, Image as KonvaImage, Rect, Text, Group } from "react-konva";
 import dayjs from "dayjs";
@@ -23,6 +86,10 @@ function useHTMLImage(src) {
 	return image;
 }
 
+function stop(e) {
+	e.stopPropagation();
+}
+
 function CroppedImage({ src, width, height, x = 0, y = 0 }) {
 	const img = useHTMLImage(src);
 	if (!img) return null;
@@ -37,6 +104,9 @@ function FilePick({ label, accept = "image/*", onPick, disabled = false }) {
 				type='file'
 				accept={accept}
 				disabled={disabled}
+				onMouseDown={stop}
+				onFocus={stop}
+				onKeyDown={stop}
 				onChange={(e) => {
 					const f = e.target.files?.[0];
 					if (f) onPick(f);
@@ -332,65 +402,6 @@ export default function PosterMaker() {
 		a.download = `LOTR_${dayjs(dateText).format("YYYY-MM-DD")}.jpg`;
 		a.click();
 	};
-
-	// ControlsPanel component for reuse (desktop and mobile)
-	function ControlsPanel({ setBgDataUrl, dateText, setDateText, slots, setNameForSlot, startCropForSlot, downloadDataUrl, sanitizeFilename, exportJPG, setCoordForSlot }) {
-		return (
-			<>
-				<h1 className='text-2xl font-bold mb-2' style={{ color: "#FDD100" }}>
-					Flash Laughs – Poster Maker
-				</h1>
-
-				<div className='space-y-3'>
-					<FilePick label='Background' onPick={async (f) => setBgDataUrl(await readFileAsDataURL(f))} />
-					<div className='flex items-center gap-2'>
-						<span className='text-sm text-gray-400 w-28'>Show Date</span>
-						<Input type='date' value={dateText} onChange={(e) => setDateText(e.target.value)} />
-					</div>
-				</div>
-
-				<div className='mt-4 space-y-6'>
-					{slots.map((s, i) => (
-						<div key={s.id} className='border border-neutral-800 rounded-2xl p-3'>
-							<div className='grid grid-cols-1 gap-2'>
-								<div className='text-md' style={{ color: "#FDD100" }}>
-									{s.label ? s.label.toUpperCase() : ""}
-								</div>
-								{/* Name first, required before image */}
-								<div className='flex items-center gap-2'>
-									<span className='text-sm text-gray-400 w-28'>Name</span>
-									<Input name={`${s.id}-name`} value={s.name} onChange={(e) => setNameForSlot(i, e.target.value)} placeholder={`${s.label} Name`} />
-								</div>
-								<FilePick label='Headshot' onPick={(f) => startCropForSlot(i, f)} disabled={!s.name?.trim()} />
-								{!s.name?.trim() && <div className='text-xs text-red-300'>Enter the comic’s name before choosing an image.</div>}
-								{s.img && (
-									<div className='flex justify-end'>
-										<button className='px-3 py-1 rounded-lg bg-yellow-400 text-black text-sm font-semibold hover:bg-yellow-300' onClick={() => downloadDataUrl(s.img, `${sanitizeFilename(s.name)}.png`)}>
-											Download Cutout PNG
-										</button>
-									</div>
-								)}
-								<details className='text-sm text-gray-400'>
-									<summary>Advanced position</summary>
-									<div className='grid grid-cols-3 gap-2 mt-2'>
-										<Input type='number' value={s.x} onChange={(e) => setCoordForSlot(i, "x", parseInt(e.target.value || 0, 10))} placeholder='x' />
-										<Input type='number' value={s.y} onChange={(e) => setCoordForSlot(i, "y", parseInt(e.target.value || 0, 10))} placeholder='y' />
-										<Input type='number' value={s.size} onChange={(e) => setCoordForSlot(i, "size", parseInt(e.target.value || 0, 10))} placeholder='size' />
-									</div>
-								</details>
-							</div>
-						</div>
-					))}
-				</div>
-
-				<div className='flex gap-3 pt-4'>
-					<Button onClick={exportJPG} className='bg-yellow-400 text-black hover:bg-yellow-300 font-semibold rounded-2xl px-4'>
-						Export JPG
-					</Button>
-				</div>
-			</>
-		);
-	}
 
 	return (
 		<div className='min-h-screen w-full bg-neutral-950 text-white'>
